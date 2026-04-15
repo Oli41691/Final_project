@@ -512,3 +512,4 @@ config.py
 conftest.py
 pytest.ini
 test_data.json
+.vscode
