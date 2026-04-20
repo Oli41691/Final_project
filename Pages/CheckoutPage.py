@@ -17,14 +17,26 @@ class CheckoutPage(BasePage):
         super().__init__(driver)
 
     def fill_form(self, name: str, email: str, phone: str) -> None:
+        """
+        Заполняет форму данными
+        :param name: имя пользователя
+        :param email: адрес электронной почты
+        :param phone: номер телефона
+        """
         self.enter_text(self.NAME_INPUT, name)
         self.enter_text(self.EMAIL_INPUT, email)
         self.enter_text(self.PHONE_INPUT, phone)
 
     def submit_order(self) -> None:
+        """
+        Отправляет заказ, кликая по кнопке
+        """
         self.click(self.SUBMIT_BTN)
 
     def select_store_and_pay(self) -> None:
+        """
+        Выбирает пункт выдачи и платёжный способ
+        """
         self.click(self.CHOOSE_STORE_BTN)
         self.wait.until(EC.element_to_be_clickable(self.PICKUP_POINT_BTN))
         self.click(self.PICKUP_POINT_BTN)

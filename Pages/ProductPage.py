@@ -14,7 +14,14 @@ class ProductPage(BasePage):
         super().__init__(driver)
 
     def get_title(self) -> str:
+        """
+        Возвращает название продукта
+        :return: строка с названием продукта
+        """
         return self.get_text(self.PRODUCT_TITLE)
 
     def add_to_cart(self) -> None:
+        """
+        Добавляет товар в корзину
+        """
         self.click(self.ADD_TO_CART_BTN)

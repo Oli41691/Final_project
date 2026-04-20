@@ -1,46 +1,57 @@
-from Pages.BasePage import BasePage
 from selenium.webdriver.common.by import By
+from Pages.BasePage import BasePage
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import logging
-
+from typing import Tuple
 
 class MainPage(BasePage):
     URL: str = "https://www.chitai-gorod.ru/"
-    SEARCH_INPUT: tuple = (By.ID, 'app-search')
-    SEARCH_BUTTON: tuple = (By.CLASS_NAME, 'search-form__button-search')
+    SEARCH_INPUT: Tuple[str, str] = (By.ID, 'app-search')
+    SEARCH_BUTTON: Tuple[str, str] = (By.CSS_SELECTOR, 'button.chg-app-button--primary[type="submit"]')
 
     def __init__(self, driver: WebDriver) -> None:
         super().__init__(driver)
 
     def go(self) -> None:
+        """
+        Открывает главную страницу сайта
+        """
         self.driver.get(self.URL)
 
-    def is_loaded(self) -> WebDriverWait:
-        return self.wait.until(EC.presence_of_element_located(self.SEARCH_INPUT))
+    def is_loaded(self) -> None:
+        """
+        Проверяет, что страница полностью загружена
+        """
+        self.wait.until(EC.presence_of_element_located(self.SEARCH_INPUT))
 
-    def perform_search(self, query: str):
-        search_input = WebDriverWait(self.driver, 15).until(
-        EC.presence_of_element_located(self.SEARCH_INPUT))
+    def perform_search(self, query: str) -> None:
+        """
+        Выполняет поиск по заданному запросу
+        :param query: строка поиска
+        """
+        search_input: WebElement = self.wait.until(EC.presence_of_element_located(self.SEARCH_INPUT))
         search_input.send_keys(query)
-
-        search_button = WebDriverWait(self.driver, 20).until(
-        EC.visibility_of_element_located(self.SEARCH_BUTTON))
+        search_button: WebElement = self.wait.until(EC.visibility_of_element_located(self.SEARCH_BUTTON))
         search_button.click()
-    
-    def handle_age_confirmation(self, timeout=3) -> None:
+
+    def handle_age_confirmation(self, timeout: int = 3) -> None:
+        """
+        Обрабатывает подтверждение возраста, если требуется
+        :param timeout: время ожидания в секундах
+        """
         try:
             modal = WebDriverWait(self.driver, timeout).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'ui-modal-content__content')))
+                EC.presence_of_element_located((By.CLASS_NAME, 'ui-modal-content__content'))
+            )
             button = WebDriverWait(self.driver, 1).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, 'chg-app-button--primary')))
+                EC.element_to_be_clickable((By.CLASS_NAME, 'chg-app-button--primary'))
+            )
             button.click()
         except TimeoutException:
-            logging.info("Модальное окно подтверждения не появилось.")
+            pass
         except NoSuchElementException:
-            logging.info("Кнопка подтверждения не найдена.")
+            pass
         except Exception as e:
-            logging.error(f"Ошибка при обработке подтверждения возраста: {e}")
+            print(f"Ошибка при обработке подтверждения возраста: {e}")

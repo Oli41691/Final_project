@@ -1,96 +1,87 @@
+from requests.exceptions import HTTPError, RequestException
+from typing import Optional, Dict, Any, Tuple
 import requests
-from typing import Dict, Any, Optional
-from requests.exceptions import HTTPError, RequestException
-import logging
-from config import BASE_URL, ACCESS_TOKEN, COOKIES, URL_2
-import urllib.parse
-from requests.exceptions import HTTPError, RequestException
-
-logger = logging.getLogger(__name__)
+from config import BASE_URL, URL_2, ACCESS_TOKEN, COOKIES
 
 class ApiClient:
-    def __init__(self, 
-        base_url: str = None,  
-        url_2: str = None,     
-        token: Optional[str] = None
-    ):
-        self.base_url = (base_url or "").rstrip('/') + '/' if base_url else None
-        self.url_2 = (url_2 or "").rstrip('/') + '/' if url_2 else None
-        self.session = requests.Session()
-        self.session.headers.update({
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        })
+    def __init__(
+        self,
+        base_url: Optional[str] = None,
+        url_2: Optional[str] = None,
+        token: Optional[str] = None,
+        use_url_2: bool = False,
+        headers: Optional[Dict[str, str]] = None
+    ) -> None:
+        self.base_url: str = (base_url.rstrip('/') + '/') if base_url else ''
+        self.url_2: str = (url_2.rstrip('/') + '/') if url_2 else ''
+        self.use_url_2: bool = use_url_2
+        self.session: requests.Session = requests.Session()
+
+        default_headers: Dict[str, str] = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+
         if token:
-            self.session.headers.update({"Authorization": f"Bearer {token}"})
-        # сюда можно добавить cookies и другие настройки
-        self.timeout = 30
+            default_headers['Authorization'] = f'Bearer {token}'
 
-    def _handle_response(self, response: requests.Response) -> requests.Response:
-        """Обработка ответа"""
+        if headers:
+            default_headers.update(headers)
+
+        self.session.headers.update(default_headers)
+
+    def _get_base_url(self, use_url_2: Optional[bool] = None) -> str:
+        if use_url_2 is None:
+            use_url_2 = self.use_url_2
+        return self.url_2 if use_url_2 and self.url_2 else self.base_url
+
+    def _request(self, method: str, endpoint: str,
+             params: Optional[Dict[str, Any]] = None,
+             json: Optional[Dict[str, Any]] = None,
+             use_url_2: Optional[bool] = None) -> Tuple[int, Dict]:
+        if use_url_2 is None:
+            use_url_2 = self.use_url_2
+        url: str = self._get_base_url(use_url_2) + endpoint
+        resp: requests.Response = getattr(self.session, method)(url, params=params, json=json)
         try:
-            response.raise_for_status()
-        except HTTPError as e:
-            logger.error(f"HTTP error: {e}, Response: {response.text}")
-        raise
-        try:
-            response.json()
-        except ValueError:
-            logger.warning("Ответ не является JSON")
-        return response
+            response_json = resp.json()
+        except Exception:
+            response_json = {"error": resp.text}
+        return resp.status_code, response_json
 
-    def get_cart_info(self) -> Dict[str, Any]:
-        """Получение информации о корзине, использует base_url"""
-        if not self.base_url:
-            raise ValueError("base_url не задан")
-        url = f"{self.base_url}cart/short"
-        logger.info(f"Request URL: {url}")
-        response = self.session.get(url, timeout=self.timeout)
-        return self._handle_response(response).json()
+    def get_cart_info(self) -> Tuple[int, Dict]:
+        return self._request('get', 'cart')
 
-    def search_product(self, city_id: int, phrase: str, ab_test_group: str,
-        page=1,
-        per_page=60,
-        use_url_2: bool = True):
-        """Поиск товара, выбор URL по флагу"""
-        url_base = self.url_2 if use_url_2 and self.url_2 else self.base_url
-        if not url_base:
-            raise ValueError("URL для поиска не задан")
-        response = self.session.get(
-            f"{url_base}search/product",
-            params={
-                "customerCityId": city_id,
-                "phrase": phrase,
-                "abTestGroup": ab_test_group,
-                "products[page]": page,
-                "products[per-page]": per_page
-            },
-            timeout=self.timeout
-        )
-        return self._handle_response(response)
+    def search_product(self, city_id: int, phrase: str,
+                   ab_test_group: str = "",
+                   page: int = 1,
+                   per_page: int = 60) -> Tuple[int, Dict]:
+        params: Dict[str, Any] = {
+        "customerCityId": city_id,
+        "phrase": phrase,
+        "ab_test_group": ab_test_group,
+        "page": page,
+        "per_page": per_page
+    }
+        return self._request('get', 'facet-search', params=params)
 
-    def product_to_cart(self, product_id):
-        if not self.base_url:
-            raise ValueError("base_url не задан")
-        url = f"{self.base_url}cart/product"
-        payload = {"id": product_id}
-        response = self.session.post(url, json=payload)
-        return self._handle_response(response)
+    def product_to_cart(self, product_id: int, quantity: int = 1, use_url_2: Optional[bool] = None) -> Tuple[int, Dict]:
+        payload: Dict[str, Any] = {
+        "productId": product_id,
+        "quantity": quantity
+    }
+        return self._request('post', 'cart/product', json=payload, use_url_2=use_url_2)
 
-    def checkout(self, city_id: int, shipment_type: str, user_type: str, order_type: str) -> Dict[str, Any]:
-        if not self.base_url:
-            raise ValueError("base_url не задан")
-        response = self.session.get(
-            f"{self.base_url}checkout",
-            params={
-                "cityID": city_id,
-                "shipmentType": shipment_type,
-                "userType": user_type,
-                "orderType": order_type
-            },
-            timeout=self.timeout
-        )
-        return self._handle_response(response).json()
+    def checkout(self, city_id: str, shipment_type: str,
+        user_type: str,
+        order_type: str) -> Tuple[int, Dict]:
+        payload: Dict[str, Any] = {
+            "city_id": city_id,
+            "shipment_type": shipment_type,
+            "user_type": user_type,
+            "order_type": order_type
+        }
+        return self._request('post', 'checkout', json=payload)
 
-    def close(self):
+    def close(self) -> None:
         self.session.close()

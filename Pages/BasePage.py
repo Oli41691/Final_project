@@ -3,7 +3,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from typing import Tuple, Any
+from typing import Tuple
 
 class BasePage:
     def __init__(self, driver: WebDriver) -> None:
@@ -27,7 +27,7 @@ class BasePage:
         Кликает по элементу
         :param locator: tuple
         """
-        element = self.find(locator)
+        element: WebElement = self.find(locator)
         element.click()
 
     def enter_text(self, locator: Tuple[str, str], text: str) -> None:
@@ -36,7 +36,7 @@ class BasePage:
         :param locator: tuple
         :param text: str
         """
-        element = self.find(locator)
+        element: WebElement = self.find(locator)
         element.clear()
         element.send_keys(text)
 
@@ -58,6 +58,8 @@ class BasePage:
     def wait_for_element_clickable(self, locator: Tuple[str, str], timeout: int = 10) -> None:
         """
         Ждет, пока элемент станет кликабельным
+        :param locator: tuple
+        :param timeout: время ожидания
         """
         WebDriverWait(self.driver, timeout).until(
             EC.element_to_be_clickable(locator),
@@ -67,10 +69,16 @@ class BasePage:
     def scroll_to_element(self, locator: Tuple[str, str]) -> None:
         """
         Скроллит страницу до элемента
+        :param locator: tuple
         """
-        element = self.find(locator)
+        element: WebElement = self.find(locator)
         self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
 
     def get_text(self, locator: Tuple[str, str]) -> str:
-        element = self.find(locator)
+        """
+        Получает текст элемента
+        :param locator: tuple
+        :return: текст элемента как str
+        """
+        element: WebElement = self.find(locator)
         return element.text

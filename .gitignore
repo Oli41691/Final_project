@@ -508,4 +508,5 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,python,test
 
-*vscode
+# Игнорировать настройки редактора Visual Studio Code
+.vscode/

@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from config import BASE_URL, ACCESS_TOKEN, REFRESH_TOKEN
+from config import BASE_URL, ACCESS_TOKEN, REFRESH_TOKEN, URL_2
 from Pages.api_client import ApiClient
 
 @pytest.fixture(scope='session')
@@ -15,10 +15,13 @@ def api_urls():
 
 @pytest.fixture(scope='session')
 def api_client():
-    """Fixture для API клиента"""
-    client = ApiClient(base_url=BASE_URL, token=ACCESS_TOKEN)
-    yield client
-    client.close()
+    """Основной клиент, использующий base_url."""
+    return ApiClient(base_url=BASE_URL, token=ACCESS_TOKEN)
+
+@pytest.fixture
+def api_client_url_2():
+    """Клиент с использованием URL 2, для поиска книг или специальных случаев."""
+    return ApiClient(base_url=BASE_URL, url_2=URL_2, use_url_2=True, token=ACCESS_TOKEN)
 
 @pytest.fixture(scope='session')
 def authenticated_session():
