@@ -3,27 +3,45 @@
 Данный проект предназначен для автоматизированного тестирования сайта интернет-магазина "Chitai-Gorod". В рамках проекта реализованы UI и API тесты, что позволяет обеспечить качество и стабильность сайта за счёт автоматической проверки функционала. Используются такие инструменты, как Selenium WebDriver, pytest и Allure для формирования отчетов.
 
 # Структура проекта
-Final_project/
-│
-├── Pages/                     # Страницы Page Object Model
-│   ├── BasePage.py            # Базовая страница
-│   ├── MainPage.py            # Главная страница
-│   ├── ProductPage.py         # Страница товара
-│   ├── SearchPage.py          # Страница поиска
-│   ├── CartPage.py            # Корзина
-│   └── CheckoutPage.py        # Оформление заказа
-│   └── api_client.py          # API клиент
-│
-├── test/                      # Тесты
-│   ├── _ui/                   # UI тесты  
-│   ├── test_api/              # API тесты
-│
-├── conftest.py                # Конфигурация фикстур pytest
-├── pytest.ini                 # Настройка pytest
-├── config.py                  # Конфигурационный файл
-├── requirements.txt           # Зависимости
-├── .gitignore                 # Исключения Git
-└── README.md                  # Это описание проекта
+# Final_project:
+
+##  Pages   
+Страницы Page Object Model
+
+- BasePage.py
+Базовая страница
+-  MainPage.py
+Главная страница
+-  ProductPage.py
+Страница товара
+- SearchPage.py
+Страница поиска
+- CartPage.py
+Корзина
+- CheckoutPage.py
+Оформление заказа
+- api_client.py
+API клиент
+
+## test
+- test_ui
+UI тесты  
+- test_api
+ API тесты
+
+## Доп.файлы:
+- conftest.py
+Конфигурация фикстур pytest
+-  pytest.ini
+Настройка pytest
+- config.py
+Конфигурационный файл
+- requirements.txt
+Зависимости
+- .gitignore
+Исключения Git
+- README.md
+Это описание проекта
 
 ## Необходимые зависимости
 # Установите все необходимые библиотеки командой:
