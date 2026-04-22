@@ -5,39 +5,52 @@
 ## Структура проекта
 # Final_project/
 
-# Pages/ — Page Object Model страницы
+## Pages/ — Page Object Model страницы
 
 BasePage.py — базовая страница, общие методы
+
 MainPage.py — главная страница
+
 ProductPage.py — страница товара
+
 SearchPage.py — страница поиска
+
 CartPage.py — корзина
+
 CheckoutPage.py — оформление заказа
+
 api_client.py — API клиент для взаимодействия с API сайта
 
-# test/ — тесты
+## test/ — тесты
 
 test_ui/ — UI тесты
+
 test_api/ — API тесты
 
-# Дополнительные файлы:
+## Дополнительные файлы:
 
 conftest.py — конфигурация фикстур pytest
+
 pytest.ini — настройки pytest
+
 config.py — конфигурационный файл (ключи, URL, таймауты)
+
 requirements.txt — список зависимостей
+
 .gitignore — исключения Git
+
 README.md — описание проекта
 
-## Необходимые зависимости
-# Установите все необходимые библиотеки командой:
+# Необходимые зависимости
+## Установите все необходимые библиотеки командой:
 pip install -r requirements.txt
 
 В requirements.txt обычно указаны:
-selenium (для UI тестирования)
-pytest (для запуска тестов)
-requests (для API)
-allure-pytest и allure-python-commons (для отчетов)
+- selenium (для UI тестирования)
+- pytest (для запуска тестов)
+- requests (для API)
+- allure-pytest и allure-python-commons (для отчетов)
+
 
 
 ## Инструкции по запуску тестов
