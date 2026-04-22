@@ -5,6 +5,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from typing import Tuple
+from selenium.webdriver.remote.webelement import WebElement
+import time
 
 class MainPage(BasePage):
     URL: str = "https://www.chitai-gorod.ru/"
@@ -27,13 +29,11 @@ class MainPage(BasePage):
         self.wait.until(EC.presence_of_element_located(self.SEARCH_INPUT))
 
     def perform_search(self, query: str) -> None:
-        """
-        Выполняет поиск по заданному запросу
-        :param query: строка поиска
-        """
         search_input: WebElement = self.wait.until(EC.presence_of_element_located(self.SEARCH_INPUT))
+        search_input.clear()
         search_input.send_keys(query)
-        search_button: WebElement = self.wait.until(EC.visibility_of_element_located(self.SEARCH_BUTTON))
+        time.sleep(0.5)  # Можно попробовать побольше или меньше
+        search_button: WebElement = self.wait.until(EC.element_to_be_clickable(self.SEARCH_BUTTON))
         search_button.click()
 
     def handle_age_confirmation(self, timeout: int = 3) -> None:

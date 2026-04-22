@@ -11,6 +11,7 @@ from Pages.SearchPage import SearchPage
 from Pages.CartPage import CartPage
 from Pages.CheckoutPage import CheckoutPage
 import re
+import time
 
 devices = [
     {"name": "mobile", "width": 375, "height": 667},
@@ -21,8 +22,8 @@ devices = [
 ]
 
 
-@allure.title("Проверка поиска по точному/не корректному названию книги")
-@allure.story("Поиск книги по точному/ не корректному названию")
+@allure.title("Проверка поиска по точному названию книги")
+@allure.story("Поиск книги по точному названию")
 @pytest.mark.ui
 def test_search_by_exact_title(driver: WebDriver) -> None:
     main_page = MainPage(driver)
@@ -48,6 +49,7 @@ def test_search_by_exact_title(driver: WebDriver) -> None:
         N2 = int(match.group(2))
         print(f"Найдено {N1} товаров и {N2} других совпадений")
 
+@allure.title("Адаптивность сайта — мобильное устройство (375x667)")
 @allure.story("Адаптивность сайта на мобильных устройствах")
 @pytest.mark.ui
 def test_layout_mobile(driver):
@@ -59,6 +61,7 @@ def test_layout_mobile(driver):
     with allure.step("Проверка наличия мобильного меню"):
         assert main_page.is_element_visible((By.CLASS_NAME, 'home-page')), "Главное меню не отображается на мобильном"
 
+@allure.title("Адаптивность сайта — планшет (768x1024)")
 @allure.story("Адаптивность сайта на планшете")
 @pytest.mark.ui
 def test_layout_tablet(driver):
@@ -70,6 +73,7 @@ def test_layout_tablet(driver):
     with allure.step("Проверка наличия полноценного меню на планшете"):
         assert main_page.is_element_visible((By.CLASS_NAME, 'home-page')), "Меню не отображается на планшете"
 
+@allure.title("Адаптивность сайта — десктоп (1920x1080)")
 @allure.story("Адаптивность сайта на десктопе")
 @pytest.mark.ui
 def test_layout_desktop(driver):
@@ -81,6 +85,7 @@ def test_layout_desktop(driver):
     with allure.step("Проверка отображения полного меню на десктопе"):
         assert main_page.is_element_visible((By.CLASS_NAME, 'home-page')), "Меню не отображается на десктопе"
 
+@allure.title("Адаптивность сайта — ноутбук (1440x900)")
 @allure.story("Адаптивность сайта на ноутбуке")
 @pytest.mark.ui
 def test_layout_laptop(driver):
@@ -92,6 +97,7 @@ def test_layout_laptop(driver):
     with allure.step("Проверка отображения меню на ноутбуке"):
         assert main_page.is_element_visible((By.CLASS_NAME, 'home-page'))
 
+@allure.title("Адаптивность сайта — большой дисплей (2560x1440)")
 @allure.story("Адаптивность сайта на больших дисплеях")
 @pytest.mark.ui
 def test_layout_large_desktop(driver):
@@ -156,3 +162,26 @@ def test_elements_responsiveness(driver):
 
         if not success:
             pytest.fail("Некоторые кнопки не были обнаружены или стали устаревшими при проверке")
+
+@allure.title("Проверка поиска несуществующей книги")
+@allure.story("Поиск по несуществующему названию")
+@pytest.mark.ui
+def test_search_nonexistent_book(driver):
+    main_page = MainPage(driver)
+
+    with allure.step("Открытие сайта и ожидание загрузки страницы"):
+        main_page.go()
+
+    with allure.step("Ввод несуществующего названия книги и выполнение поиска"):
+        main_page.perform_search("jfjf4hjfbc")
+
+    with allure.step("Ожидание появления сообщения о отсутствии книги"):
+        try:
+            # Ждём появления элемента с классом catalog-stub__title
+            no_results_element = WebDriverWait(driver, 10).until(
+                EC.visibility_of_element_located((By.CLASS_NAME, "catalog-stub__title"))
+            )
+            # Проверяем текст
+            assert "Похоже, у нас такого нет" in no_results_element.text
+        except TimeoutException:
+            pytest.fail("Сообщение о отсутствии книги не появилось")

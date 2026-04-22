@@ -58,19 +58,16 @@ class ApiClient:
                    per_page: int = 60) -> Tuple[int, Dict]:
         params: Dict[str, Any] = {
         "customerCityId": city_id,
-        "phrase": phrase,
-        "ab_test_group": ab_test_group,
-        "page": page,
-        "per_page": per_page
+        "phrase": phrase
     }
-        return self._request('get', 'facet-search', params=params)
+        return self._request('get', 'search/facet-search', params=params, use_url_2=True)
 
-    def product_to_cart(self, product_id: int, quantity: int = 1, use_url_2: Optional[bool] = None) -> Tuple[int, Dict]:
+    def product_to_cart(self, product_id: int, quantity: int = 1) -> Tuple[int, Dict]:
         payload: Dict[str, Any] = {
-        "productId": product_id,
-        "quantity": quantity
-    }
-        return self._request('post', 'cart/product', json=payload, use_url_2=use_url_2)
+            "id": product_id,
+            "quantity": quantity
+        }
+        return self._request('post', 'cart/product', json=payload)
 
     def checkout(self, city_id: str, shipment_type: str,
         user_type: str,

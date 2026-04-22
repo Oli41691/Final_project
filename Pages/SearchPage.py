@@ -8,7 +8,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
 class SearchPage(BasePage):
-    RESULT_ITEMS: Tuple[str, str] = (By.CSS_SELECTOR, '[type="submit"]')
+    SEARCH_BUTTON: Tuple[str, str] = (By.CSS_SELECTOR, 'button.chg-app-button--primary[type="submit"]')
 
     def __init__(self, driver: WebDriver) -> None:
         super().__init__(driver)
@@ -18,7 +18,7 @@ class SearchPage(BasePage):
         Возвращает список элементов результатов поиска
         :return: список WebElement
         """
-        return self.wait.until(EC.visibility_of_all_elements_located(self.RESULT_ITEMS))
+        return self.wait.until(EC.visibility_of_all_elements_located(self.SEARCH_BUTTON))
     
     def is_book_in_results(self, title: str) -> bool:
         """
